@@ -1,0 +1,44 @@
+[
+  {
+    "accountid": "acc-1001-d365",
+    "accountnumber": "CUST-KE-001",
+    "name": "Nairobi Highland Logistics Ltd",
+    "emailaddress1": "finance@nairobihighland.co.ke",
+    "telephone1": "+254 722 000 111",
+    "address1_city": "Nairobi",
+    "address1_country": "Kenya",
+    "creditlimit": 5000000.00,
+    "statecode": 0,
+    "statuscode": 1,
+    "createdon": "2026-01-15T06:30:00Z",
+    "modifiedon": "2026-09-20T10:14:22Z"
+  },
+  {
+    "accountid": "acc-1002-d365",
+    "accountnumber": "CUST-KE-002",
+    "name": "Mombasa Coastal Distributors",
+    "emailaddress1": "orders@coastal-distributors.com",
+    "telephone1": "+254 733 999 888",
+    "address1_city": "Mombasa",
+    "address1_country": "Kenya",
+    "creditlimit": 2500000.00,
+    "statecode": 0,
+    "statuscode": 1,
+    "createdon": "2026-02-10T08:15:00Z",
+    "modifiedon": "2026-09-25T14:45:10Z"
+  },
+  {
+    "accountid": "acc-1003-d365",
+    "accountnumber": "CUST-KE-003",
+    "name": "Rift Valley Agro Chemicals",
+    "emailaddress1": "accounts@riftvalleyagro.ke",
+    "telephone1": "+254 711 555 444",
+    "address1_city": "Nakuru",
+    "address1_country": "Kenya",
+    "creditlimit": 1200000.00,
+    "statecode": 1,
+    "statuscode": 2,
+    "createdon": "2025-11-01T07:00:00Z",
+    "modifiedon": "2026-08-11T12:00:00Z"
+  }
+]

@@ -1,0 +1,63 @@
+// =============================================================================
+// Power BI Direct Lake Semantic Model: Key Enterprise DAX Measures
+// Author: Rooney Odhiambo (Microsoft Certified: Fabric Data Engineer Associate, DP-700)
+// Purpose: High-performance DAX calculations reading directly from OneLake Delta Parquet
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. Sales & Revenue Metrics
+// -----------------------------------------------------------------------------
+
+Total Gross Sales := 
+SUM(FactSales[total_amount_gross])
+
+Total Net Sales := 
+SUM(FactSales[net_amount])
+
+Total Discounts Given := 
+SUM(FactSales[discount_amount])
+
+Total Tax Collected := 
+SUM(FactSales[tax_amount])
+
+Discount Percentage := 
+DIVIDE([Total Discounts Given], [Total Gross Sales], 0)
+
+// -----------------------------------------------------------------------------
+// 2. Time Intelligence (Fiscal Year-to-Date & YoY Growth)
+// -----------------------------------------------------------------------------
+
+Sales YTD := 
+TOTALYTD(
+    [Total Net Sales], 
+    DimDate[calendar_date]
+)
+
+Sales Prior Year (PY) := 
+CALCULATE(
+    [Total Net Sales], 
+    SAMEPERIODLASTYEAR(DimDate[calendar_date])
+)
+
+YoY Sales Growth % := 
+VAR _Current = [Total Net Sales]
+VAR _Prior = [Sales Prior Year (PY)]
+RETURN
+DIVIDE(_Current - _Prior, _Prior, 0)
+
+// -----------------------------------------------------------------------------
+// 3. Operational Integrity & SLA Monitoring
+// -----------------------------------------------------------------------------
+
+Active Customer Count := 
+CALCULATE(
+    DISTINCTCOUNT(FactSales[customer_sk]),
+    DimCustomer[status_label] = "Active"
+)
+
+Average Order Value (AOV) := 
+DIVIDE([Total Net Sales], DISTINCTCOUNT(FactSales[order_number]), 0)
+
+// Direct Lake Freshness Check
+Latest Pipeline Refresh := 
+MAX(DimCustomer[modified_on_eat])

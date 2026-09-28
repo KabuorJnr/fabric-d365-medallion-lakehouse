@@ -1,0 +1,84 @@
+{
+  "name": "Pipeline_D365_Medallion_Refresh",
+  "properties": {
+    "description": "Orchestrates end-to-end refresh of Dynamics 365 ERP data in Microsoft Fabric OneLake.",
+    "activities": [
+      {
+        "name": "01_Audit_Bronze_Shortcuts",
+        "type": "SynapseNotebook",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebook": {
+            "referenceName": "01_bronze_ingestion_dataverse",
+            "type": "NotebookReference"
+          }
+        }
+      },
+      {
+        "name": "02_Cleanse_To_Silver",
+        "type": "SynapseNotebook",
+        "dependsOn": [
+          {
+            "activity": "01_Audit_Bronze_Shortcuts",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "policy": {
+          "timeout": "0.01:30:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 60
+        },
+        "typeProperties": {
+          "notebook": {
+            "referenceName": "02_silver_pyspark_cleaning_d365",
+            "type": "NotebookReference"
+          }
+        }
+      },
+      {
+        "name": "03_Curate_To_Gold_Star_Schema",
+        "type": "SynapseNotebook",
+        "dependsOn": [
+          {
+            "activity": "02_Cleanse_To_Silver",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 60
+        },
+        "typeProperties": {
+          "notebook": {
+            "referenceName": "03_gold_star_schema_delta",
+            "type": "NotebookReference"
+          }
+        }
+      },
+      {
+        "name": "Notify_On_Pipeline_Failure",
+        "type": "Office365OutlookNotification",
+        "dependsOn": [
+          {
+            "activity": "03_Curate_To_Gold_Star_Schema",
+            "dependencyConditions": ["Failed"]
+          }
+        ],
+        "typeProperties": {
+          "recipients": ["data-engineering@edu1app.tech"],
+          "subject": "CRITICAL: Fabric D365 Medallion Pipeline Run Failed",
+          "body": "The scheduled Microsoft Fabric refresh for Dynamics 365 Gold tables has failed. Check Fabric monitoring hub for task failure logs."
+        }
+      }
+    ],
+    "annotations": ["Dynamics365", "MicrosoftFabric", "DP-700", "MedallionArchitecture"]
+  }
+}

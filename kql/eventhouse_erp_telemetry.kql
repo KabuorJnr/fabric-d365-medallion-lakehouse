@@ -1,0 +1,39 @@
+// =============================================================================
+// Microsoft Fabric Real-Time Intelligence: Eventhouse KQL Telemetry
+// Author: Rooney Odhiambo (Microsoft Certified: Fabric Data Engineer Associate, DP-700)
+// Purpose: Ingest, monitor, and query real-time ERP transaction streams and detect anomalies.
+// =============================================================================
+
+// 1. Create Ingestion Table for Real-Time ERP Events
+.create table ErpTransactionEvents (
+    EventId: string,
+    CorrelationId: string,
+    SourceSystem: string,
+    EntityName: string,
+    TransactionType: string,
+    Amount: real,
+    Currency: string,
+    Status: string,
+    PayloadTimestamp: datetime,
+    IngestedAt: datetime
+)
+
+// 2. Continuous Ingestion Batching Policy (10-second latency window for near real-time)
+.alter table ErpTransactionEvents policy ingestionbatching @'{"MaximumBatchingTimeSpan":"00:00:10", "MaximumNumberOfItems": 1000}'
+
+// 3. Hourly Transaction Velocity & Anomaly Detection (Using series_decompose_anomalies)
+ErpTransactionEvents
+| where PayloadTimestamp > ago(14d)
+| make-series HourlyVolume = count() on PayloadTimestamp from ago(14d) to now() step 1h by SourceSystem
+| extend (Anomalies, Score, Baseline) = series_decompose_anomalies(HourlyVolume, 1.5, -1, 'linefit')
+| render anomalychart with(anomalycolumns=Anomalies, title="Hourly ERP Transaction Anomalies")
+
+// 4. Critical Failed Payment / Order SLA Alert Query
+ErpTransactionEvents
+| where IngestedAt > ago(15m)
+| where Status in ("FAILED", "REJECTED", "TIMEOUT")
+| summarize 
+    FailedCount = count(), 
+    TotalLostVolume = sum(Amount) 
+    by EntityName, Currency
+| where FailedCount >= 5

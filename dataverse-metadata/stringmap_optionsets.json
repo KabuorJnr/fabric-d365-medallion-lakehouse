@@ -1,0 +1,33 @@
+{
+  "description": "Microsoft Dynamics 365 Dataverse StringMap reference definitions for option-sets & choice values.",
+  "entities": {
+    "account": {
+      "statuscode": [
+        { "code": 1, "value": "Active", "description": "Active business account" },
+        { "code": 2, "value": "Inactive", "description": "Account suspended or archived" }
+      ],
+      "customertypecode": [
+        { "code": 1, "value": "Direct Customer" },
+        { "code": 2, "value": "Channel Partner / Distributor" },
+        { "code": 3, "value": "Government Institution" }
+      ]
+    },
+    "salesorder": {
+      "statuscode": [
+        { "code": 1, "value": "Draft", "description": "Order created, pending approval" },
+        { "code": 2, "value": "In Review", "description": "Finance credit check pending" },
+        { "code": 3, "value": "Approved", "description": "Order approved for fulfillment" },
+        { "code": 4, "value": "Invoiced", "description": "Invoice generated and posted" },
+        { "code": 5, "value": "Cancelled", "description": "Order cancelled" }
+      ]
+    },
+    "generalledgerentry": {
+      "postingtype": [
+        { "code": 100, "value": "Operating Expense" },
+        { "code": 200, "value": "Sales Revenue" },
+        { "code": 300, "value": "Accounts Receivable" },
+        { "code": 400, "value": "Accounts Payable" }
+      ]
+    }
+  }
+}
